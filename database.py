@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from dotenv import dotenv_values
 import dns.resolver
@@ -42,7 +43,12 @@ try:
     print("SUCCESS! MongoDB connected!")
 
     # Database
-    db = client["employee_management"]
+    db_name = os.getenv(
+      "DB_NAME",
+      config.get("DB_NAME", "employee_management")
+)
+
+    db = client[db_name]
 
     # Collection
     employees_collection = db["employees"]
