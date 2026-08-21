@@ -1,20 +1,16 @@
-from fastapi.testclient import TestClient
-from main import app
 from database import employees_collection
 
-client = TestClient(app)
 
 
 
-
-def test_get_all_employees():
+def test_get_all_employees(client):
     response = client.get("/employees")
 
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
 
-def test_create_employee():
+def test_create_employee(client):
     employee = {
         "id": 1002,
         "name": "Test Employee",
@@ -35,7 +31,7 @@ def test_create_employee():
     employees_collection.delete_one({"id": 1002})
 
 
-def test_duplicate_employee_id():
+def test_duplicate_employee_id(client):
     employee = {
         "id": 2000,
         "name": "First Employee",
@@ -75,7 +71,8 @@ def test_duplicate_employee_id():
     # Clean up after test
     employees_collection.delete_one({"id": 2000})
 
-def test_invalid_employee_email():
+
+def test_invalid_employee_email(client):
     employee = {
         "id": 3000,
         "name": "Invalid Email",
@@ -91,12 +88,12 @@ def test_invalid_employee_email():
 
     assert response.status_code == 422
 
-def test_employee_not_found():
+def test_employee_not_found(client):
     response = client.get("/employees/999999")
 
     assert response.status_code == 404
 
-def test_update_employee():
+def test_update_employee(client):
     employee = {
         "id": 4000,
         "name": "Update Test",
@@ -136,7 +133,8 @@ def test_update_employee():
     # Clean up
     employees_collection.delete_one({"id": 4000})
 
-def test_delete_employee():
+
+def test_delete_employee(client):
     employee = {
         "id": 5000,
         "name": "Delete Test",

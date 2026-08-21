@@ -1,3 +1,5 @@
+from fastapi import Depends
+from auth import get_current_user, require_admin
 from fastapi import APIRouter, HTTPException, status
 from models.employee import Employee
 from database import employees_collection
@@ -13,7 +15,10 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     summary="Create a new employee"
 )
-def add_employee(employee: Employee):
+def add_employee(
+    employee: Employee,
+    current_user: dict = Depends(require_admin)
+):
 
     existing_employee = employees_collection.find_one(
         {"id": employee.id}
@@ -43,7 +48,8 @@ def get_employees(
     page: int = 1,
     limit: int = 5,
     sort_by: str = "id",
-    order: str = "asc"
+    order: str = "asc",
+    current_user: str = Depends(get_current_user)
 ):
     if page < 1:
         raise HTTPException(
@@ -92,7 +98,8 @@ def get_employees(
 def search_employees(
     name: str | None = None,
     role: str | None = None,
-    minimum_salary: float | None = None
+    minimum_salary: float | None = None,
+    current_user: str = Depends(get_current_user)
 ):
     query = {}
 
@@ -126,7 +133,8 @@ def search_employees(
     "/{employee_id}",
     summary="Get employee by ID"
 )
-def get_employee(employee_id: int):
+def get_employee(employee_id: int, 
+                 current_user: str = Depends(get_current_user)):
 
     employee = employees_collection.find_one(
         {"id": employee_id},
@@ -145,7 +153,8 @@ def get_employee(employee_id: int):
     "/{employee_id}",
     summary="Update an employee"
 )
-def update_employee(employee_id: int, employee: Employee):
+def update_employee(employee_id: int, employee: Employee, 
+                    current_user: str = Depends(require_admin)):
 
     result = employees_collection.update_one(
         {"id": employee_id},
@@ -168,7 +177,8 @@ def update_employee(employee_id: int, employee: Employee):
     "/{employee_id}",
     summary="Delete an employee"
 )
-def delete_employee(employee_id: int):
+def delete_employee(employee_id: int, 
+                    current_user: str = Depends(require_admin)):
 
     result = employees_collection.delete_one(
         {"id": employee_id}
@@ -188,7 +198,8 @@ def delete_employee(employee_id: int):
     "/role/{role}",
     summary="Get employees by role"
 )
-def get_employees_by_role(role: str):
+def get_employees_by_role(role: str,
+                          current_user: str = Depends(get_current_user)):
 
     employees = list(
         employees_collection.find(
@@ -203,7 +214,8 @@ def get_employees_by_role(role: str):
     "/search/{name}",
     summary="Search employees by name"
 )
-def search_employees_by_name(name: str):
+def search_employees_by_name(name: str,
+                             current_user: str = Depends(get_current_user)):
 
     employees = list(
         employees_collection.find(
@@ -218,7 +230,8 @@ def search_employees_by_name(name: str):
     "/salary/{minimum_salary}",
     summary="Get employees by minimum salary"
 )
-def get_employees_by_salary(minimum_salary: float):
+def get_employees_by_salary(minimum_salary: float,
+                            current_user: str = Depends(get_current_user)):
 
     employees = list(
         employees_collection.find(

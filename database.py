@@ -52,12 +52,17 @@ try:
 
     # Collection
     employees_collection = db["employees"]
+    users_collection = db["users"]
 
     # Unique employee ID
     employees_collection.create_index(
         "id",
         unique=True
     )
+    users_collection.create_index(
+    "username",
+    unique=True
+   )
 
     print("Unique index created on employee ID")
     print("Database:", db.name)
