@@ -3,6 +3,7 @@ from auth import get_current_user, require_admin
 from fastapi import APIRouter, HTTPException, status
 from models.employee import Employee
 from database import employees_collection
+from models.response import EmployeeResponse, MessageResponse, EmployeeListResponse
 
 router = APIRouter(
     prefix="/employees",
@@ -13,6 +14,7 @@ router = APIRouter(
 @router.post(
     "",
     status_code=status.HTTP_201_CREATED,
+    response_model=EmployeeResponse,
     summary="Create a new employee"
 )
 def add_employee(
@@ -41,6 +43,7 @@ def add_employee(
 
 @router.get(
     "",
+    response_model=EmployeeListResponse,
     summary="Get all employees",
     description="Returns a paginated and sorted list of employees."
 )
@@ -151,6 +154,7 @@ def get_employee(employee_id: int,
 
 @router.put(
     "/{employee_id}",
+    response_model=MessageResponse,
     summary="Update an employee"
 )
 def update_employee(employee_id: int, employee: Employee, 
@@ -175,6 +179,7 @@ def update_employee(employee_id: int, employee: Employee,
 
 @router.delete(
     "/{employee_id}",
+    response_model=MessageResponse,
     summary="Delete an employee"
 )
 def delete_employee(employee_id: int, 
