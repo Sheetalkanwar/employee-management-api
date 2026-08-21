@@ -4,6 +4,7 @@ from dotenv import dotenv_values
 import dns.resolver
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
+from config import MONGODB_URI, DB_NAME
 
 
 # ==============================
@@ -13,11 +14,7 @@ from pymongo.server_api import ServerApi
 env_path = Path(__file__).resolve().parent / ".env"
 config = dotenv_values(env_path)
 
-uri = config.get("MONGODB_URI")
-
-if not uri:
-    raise ValueError("MONGODB_URI is not set in .env")
-
+MONGODB_URI = config.get("MONGODB_URI")
 
 # ==============================
 # Configure DNS
@@ -32,9 +29,13 @@ dns.resolver.default_resolver.nameservers = ["8.8.8.8"]
 # ==============================
 
 client = MongoClient(
-    uri,
+    MONGODB_URI,
     server_api=ServerApi("1")
 )
+db = client[DB_NAME]
+
+employees_collection = db["employees"]
+users_collection = db["users"]
 
 
 try:
@@ -43,12 +44,12 @@ try:
     print("SUCCESS! MongoDB connected!")
 
     # Database
-    db_name = os.getenv(
+    DB_NAME = os.getenv(
       "DB_NAME",
       config.get("DB_NAME", "employee_management")
 )
 
-    db = client[db_name]
+    db = client[DB_NAME]
 
     # Collection
     employees_collection = db["employees"]

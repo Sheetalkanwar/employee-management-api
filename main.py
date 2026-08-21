@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-
+from database import db
+from fastapi import FastAPI, HTTPException, status
 from routes.employee_routes import router as employee_router
 from routes.user_routes import router as user_router
 
@@ -13,6 +14,27 @@ app = FastAPI(
 app.include_router(employee_router)
 app.include_router(user_router)
 
+@app.get(
+    "/health",
+    summary="Health check"
+)
+def health_check():
 
+    try:
+        db.command("ping")
+
+        return {
+            "status": "healthy",
+            "database": "connected"
+        }
+
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "status": "unhealthy",
+                "database": "disconnected"
+            }
+        )
 
 

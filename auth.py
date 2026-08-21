@@ -1,6 +1,4 @@
-import os
-from pathlib import Path
-from dotenv import load_dotenv
+
 from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
@@ -8,20 +6,13 @@ from passlib.context import CryptContext
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from config import JWT_SECRET_KEY, JWT_EXPIRE_MINUTES
+
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = JWT_EXPIRE_MINUTES
 
 
 # Load .env
-env_path = Path(__file__).resolve().parent / ".env"
-load_dotenv(env_path)
-
-SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-
-if not SECRET_KEY:
-    raise ValueError("JWT_SECRET_KEY is not set in .env")
-
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 
 # Password hashing
 pwd_context = CryptContext(
@@ -49,7 +40,7 @@ def create_access_token(data: dict):
     to_encode = data.copy()
 
     expire = datetime.now(timezone.utc) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+      minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
     to_encode.update({
@@ -58,7 +49,7 @@ def create_access_token(data: dict):
 
     return jwt.encode(
         to_encode,
-        SECRET_KEY,
+        JWT_SECRET_KEY,
         algorithm=ALGORITHM
     )
 
@@ -75,7 +66,7 @@ def get_current_user(
     try:
         payload = jwt.decode(
             token,
-            SECRET_KEY,
+            JWT_SECRET_KEY,
             algorithms=[ALGORITHM]
         )
 
