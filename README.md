@@ -141,6 +141,141 @@ Cloud deployment
 Logging and monitoring
 React/Next.js frontend
 AI-powered employee assistant
+
+
+
+
+
+
+
+
+
+
+Add Docker
+## Docker
+
+
+The application is containerized using Docker.
+
+
+### Build image
+
+
+```bash
+docker build -t employee-management-api .
+Run container
+docker run -p 8000:8000 --env-file .env employee-management-api
+
+The API is then available at:
+
+http://127.0.0.1:8000
+
+
+### 3. Add **Testing**
+
+
+Since you got **10 tests passing**, definitely show that:
+
+
+```markdown
+## Testing
+
+
+Automated tests are implemented using Pytest.
+
+
+Run tests:
+
+
+```bash
+pytest -v
+
+Current test result:
+
+10 passed
+
+Tests cover employee retrieval, creation, duplicate IDs, validation, update, delete, and not-found scenarios.
+
+
+
+### 4. Add **Authentication**
+
+
+```markdown
+## Authentication
+
+
+The API uses JWT-based authentication.
+
+
+Authentication flow:
+
+
+1. Register a user
+2. Login using username and password
+3. Receive JWT access token
+4. Use the token for protected endpoints
+5. Admin-only operations are protected using role-based authorization
+5. Add Health Check
+## Health Check
+
+
+The API provides a health monitoring endpoint:
+
+
+```text
+GET /health
+
+Example successful response:
+
+{
+  "status": "healthy",
+  "database": "connected"
+}
+
+
+### 6. Add **Project Architecture**
+
+
+A simple diagram is useful:
+
+
+```text
+Client
+  │
+  ▼
+FastAPI
+  │
+  ├── Authentication / JWT
+  │
+  ├── Employee Routes
+  │
+  ├── User Routes
+  │
+  └── Health Check
+        │
+        ▼
+     MongoDB Atlas
+
+
+Docker
+  │
+  └── FastAPI Application
+7. Add Tech Stack
+## Tech Stack
+
+
+| Technology | Purpose |
+|---|---|
+| Python | Backend development |
+| FastAPI | REST API framework |
+| MongoDB | Database |
+| PyMongo | MongoDB integration |
+| JWT | Authentication |
+| Bcrypt | Password hashing |
+| Pytest | Automated testing |
+| Docker | Containerization |
+| Uvicorn | ASGI server |
 👩‍💻 Author
 
 Sheetal Kanwar
