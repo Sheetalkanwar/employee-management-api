@@ -81,3 +81,10 @@ def health_check():
         )
 
 
+@app.get("/")
+def root():
+    return {
+        "message": "Employee Management API is running",
+        "docs": "/docs",
+        "health": "/health"
+    }
