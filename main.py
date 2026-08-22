@@ -24,6 +24,9 @@ Features:
 - Health monitoring
 """,
     version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
     openapi_tags=[
         {
             "name": "Authentication",
