@@ -1,9 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from auth import hash_password, verify_password, create_access_token, require_admin
+from auth import (
+    hash_password,
+    verify_password,
+    create_access_token,
+    require_admin
+)
 from models.user import UserCreate
 from database import users_collection
-from auth import hash_password, verify_password, create_access_token
+
 
 
 router = APIRouter(
@@ -31,7 +36,7 @@ def register_user(user: UserCreate):
         "username": user.username,
         "email": user.email,
         "password": hashed_password,
-        "role": user.role
+        "role": "user"
     }
 
     result = users_collection.insert_one(user_data)

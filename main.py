@@ -1,9 +1,7 @@
-from fastapi import FastAPI
 from database import db
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request, status
 from routes.employee_routes import router as employee_router
 from routes.user_routes import router as user_router
-from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
