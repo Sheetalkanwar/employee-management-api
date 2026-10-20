@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+const API_URL = "https://employee-management-api-1-zvfn.onrender.com";
 
 export const loginUser = async (username, password) => {
   const formData = new URLSearchParams();
