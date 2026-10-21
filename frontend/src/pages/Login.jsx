@@ -1,42 +1,31 @@
+
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { loginUser } from "../services/api";
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
-      const formData = new URLSearchParams();
+      const data = await loginUser(username.trim(), password);
 
-      formData.append("username", username);
-      formData.append("password", password);
-
-      const response = await fetch(
-        "http://127.0.0.1:8000/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: formData,
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.detail || "Login failed");
-        return;
+      if (!data.access_token) {
+        throw new Error("Login succeeded, but no access token was returned.");
       }
 
       localStorage.setItem("access_token", data.access_token);
-
       onLogin();
     } catch (error) {
-      console.error(error);
-      alert("Cannot connect to backend");
+      console.error("Login error:", error);
+      alert(error.message || "Login failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,30 +33,31 @@ function Login({ onLogin }) {
     <div className="login-page">
       <div className="login-card">
         <h1>Employee Management</h1>
-
         <p>Welcome back! Login to continue.</p>
 
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label>Username</label>
-
+            <label htmlFor="username">Username</label>
             <input
+              id="username"
               type="text"
               placeholder="Enter username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Password</label>
-
+            <label htmlFor="password">Password</label>
             <input
+              id="password"
               type="password"
               placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               required
             />
           </div>
@@ -75,13 +65,15 @@ function Login({ onLogin }) {
           <button
             className="login-button"
             type="submit"
+            disabled={loading}
           >
-            Login
+            {loading ? "Signing in..." : "Login"}
           </button>
         </form>
+
         <div className="register-text">
           Don't have an account?{" "}
-          <a href="/register">Register</a>
+          <Link to="/register">Register</Link>
         </div>
       </div>
     </div>

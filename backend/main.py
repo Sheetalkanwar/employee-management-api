@@ -1,15 +1,17 @@
-from database import db
+
 from fastapi import FastAPI, HTTPException, Request, status
-from routes.employee_routes import router as employee_router
-from routes.user_routes import router as user_router
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
+from database import engine
+from routes.employee_routes import router as employee_router
+from routes.user_routes import router as user_router
 
 app = FastAPI(
     title="Employee Management API",
     description="""
-A production-style Employee Management REST API built with FastAPI and MongoDB.
+Employee Management REST API built with FastAPI and PostgreSQL.
 
 Features:
 - Employee CRUD operations
@@ -17,8 +19,7 @@ Features:
 - JWT authentication
 - Role-based authorization
 - User management
-- MongoDB persistence
-- Automated testing
+- PostgreSQL persistence
 - Health monitoring
 """,
     version="1.0.0",
@@ -28,57 +29,60 @@ Features:
     openapi_tags=[
         {
             "name": "Authentication",
-            "description": "User registration and JWT authentication."
+            "description": "User registration and JWT authentication.",
         },
         {
             "name": "Employees",
-            "description": "Employee management and search operations."
-        }
-    ]
+            "description": "Employee management and search operations.",
+        },
+    ],
 )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 @app.exception_handler(Exception)
-async def global_exception_handler(
-    request: Request,
-    exc: Exception
-):
+async def global_exception_handler(request: Request, exc: Exception):
+    # Log the actual error in the backend terminal for debugging.
+    print(f"Unhandled error on {request.method} {request.url.path}: {exc}")
     return JSONResponse(
         status_code=500,
-        content={
-            "detail": "Internal server error"
-        }
+        content={"detail": "Internal server error"},
     )
+
 
 app.include_router(employee_router)
 app.include_router(user_router)
 
-@app.get(
-    "/health",
-    summary="Health check"
-)
-def health_check():
 
+@app.get("/health", summary="Health check")
+def health_check():
     try:
-        db.command("ping")
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
 
         return {
             "status": "healthy",
-            "database": "connected"
+            "database": "connected",
         }
 
-    except Exception:
+    except Exception as exc:
+        print(f"Database health check failed: {exc}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail={
                 "status": "unhealthy",
-                "database": "disconnected"
-            }
+                "database": "disconnected",
+            },
         )
 
 
@@ -87,5 +91,5 @@ def root():
     return {
         "message": "Employee Management API is running",
         "docs": "/docs",
-        "health": "/health"
+        "health": "/health",
     }
